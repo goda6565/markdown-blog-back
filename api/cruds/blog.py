@@ -2,6 +2,8 @@ import db as model
 from typing import List
 import schemas.blog as blog_schema
 from sqlmodel import Session, select
+from datetime import date
+from sqlalchemy import desc
 
 async def create_Blog(
     session: Session, blog_create: blog_schema.BlogCreate
@@ -15,7 +17,7 @@ async def create_Blog(
 async def read_Blogs(
     session: Session
 ) -> List[model.Blog]:
-    blogs = session.exec(select(model.Blog)).all()
+    blogs = session.exec(select(model.Blog).order_by(desc(model.Blog.id))).all()
     return blogs
 
 async def read_Blog(
@@ -29,6 +31,7 @@ async def update_Blog(
 ) -> model.Blog:
     original.title = blog_create.title
     original.text = blog_create.text
+    original.updated_at = date.today()
     session.add(original)
     session.commit()
     session.refresh(original)
